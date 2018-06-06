@@ -22,7 +22,7 @@ public class Controller {
     public void initialize(){
         TodoItem item1 = new TodoItem("Mail birthday card", "Buy a 30th birthday card for John"
         , LocalDate.of(2018, Month.JUNE, 25));
-        TodoItem item2 = new TodoItem("Sell Car", "Sell the VW for something less greasy"
+        TodoItem item2 = new TodoItem("Sell Car", "Sell the VW"
                 , LocalDate.of(2018, Month.AUGUST, 7));
         TodoItem item3 = new TodoItem("Fathers Day", "Celebrate Fathers Day"
                 , LocalDate.of(2018, Month.JUNE, 15));
