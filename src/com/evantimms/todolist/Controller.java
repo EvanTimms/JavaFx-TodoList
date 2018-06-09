@@ -1,12 +1,16 @@
 package com.evantimms.todolist;
-import com.evantimms.todolist.datamodel.TodoItem;
+import com.evantimms.todolist.datamodel.*;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextArea;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +21,8 @@ public class Controller {
     private ListView todolistView;
     @FXML
     private TextArea desTextArea;
+    @FXML
+    private Label deadlineLabel;
 
     @FXML
     public void initialize(){
@@ -35,19 +41,34 @@ public class Controller {
         todoItems.add(item3);
         todoItems.add(item4);
 
+        // adding listener for selecting item detailed text. Can also use lambda expressions
+        todolistView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                if(newValue != null){
+                    TodoItem item = (TodoItem) todolistView.getSelectionModel().getSelectedItem();
+                    desTextArea.setText(item.getExtendedDes());
+                    //Using DateTimeFormatter class for better date displaying
+                    DateTimeFormatter df = DateTimeFormatter.ofPattern("MMMM d, yyy");
+                    deadlineLabel.setText(df.format(item.getDeadline()));
+                }
+            }
+        });
+
         todolistView.getItems().setAll(todoItems);
         todolistView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+
+        //selecting first item to display
+        todolistView.getSelectionModel().selectFirst();
+
 
     }
 
     @FXML
     public void handleClickListView(){
         TodoItem item = (TodoItem) todolistView.getSelectionModel().getSelectedItem();
-        StringBuilder sb = new StringBuilder(item.getExtendedDes());
-        sb.append("\n\n\n\n");
-        sb.append("Due: ");
-        sb.append(item.getDeadline().toString());
-        desTextArea.setText(sb.toString());
+        desTextArea.setText(item.getExtendedDes());
+        deadlineLabel.setText(item.getDeadline().toString());
     }
 
 }
