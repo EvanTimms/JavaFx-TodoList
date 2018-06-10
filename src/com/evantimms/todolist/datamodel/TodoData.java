@@ -1,6 +1,7 @@
 package com.evantimms.todolist.datamodel;
 
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -11,14 +12,14 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
-import java.util.List;
+
 
 public class TodoData {
     private static TodoData instance = new TodoData();
     //File name where data is stored
     private static String filename = "TodoListItems.txt";
 
-    private List<TodoItem> todoItems;
+    private ObservableList<TodoItem> todoItems;
     private DateTimeFormatter formatter;
 
     public static TodoData getInstance(){
@@ -31,40 +32,40 @@ public class TodoData {
         formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
     }
 
-    public List<TodoItem> getTodoItems() {
+    public ObservableList<TodoItem> getTodoItems() {
         return todoItems;
     }
 
-    public void setTodoItems(List<TodoItem> todoItems) {
-        this.todoItems = todoItems;
+    public void addTodoItem(TodoItem item){
+        todoItems.add(item);
     }
 
-    public void loadTodoItems() throws IOException{
+    public void loadTodoItems() throws IOException {
+
+        // We are using an observable list for performance reasons, as the fxcollections
+        // list has a reduced number of events, and methods are optimized to raise a limited
+        // number of notifications(Taken from the documentation)
         todoItems = FXCollections.observableArrayList();
         Path path = Paths.get(filename);
-        //generating file reader with specified file path
         BufferedReader br = Files.newBufferedReader(path);
 
         String input;
 
-        try{
-            while((input = br.readLine()) != null){
-                //splitting to get different pieces of data from class
+        try {
+            while ((input = br.readLine()) != null) {
                 String[] itemPieces = input.split("\t");
 
-                String shortDes= itemPieces[0];
-                String extendedDes = itemPieces[1];
+                String shortDescription = itemPieces[0];
+                String details = itemPieces[1];
                 String dateString = itemPieces[2];
 
-                //converting date
                 LocalDate date = LocalDate.parse(dateString, formatter);
-                TodoItem todoItem = new TodoItem(shortDes,extendedDes,date);
-
-                //adding to todoitems list
+                TodoItem todoItem = new TodoItem(shortDescription, details, date);
                 todoItems.add(todoItem);
             }
-        }finally {
-            if(br != null){
+
+        } finally {
+            if(br != null) {
                 br.close();
             }
         }
@@ -81,7 +82,7 @@ public class TodoData {
             Iterator<TodoItem> iter = todoItems.iterator();
             while(iter.hasNext()){
                 TodoItem item = iter.next();
-                bw.write(String.format("%s\t%s\t,%s",
+                bw.write(String.format("%s\t%s\t%s",
                         item.getShortDes(),
                         item.getExtendedDes(),
                         item.getDeadline().format(formatter)
@@ -95,4 +96,9 @@ public class TodoData {
             }
         }
     }
+
+    public void deleteTodoItem(TodoItem item){
+        todoItems.remove(item);
+    }
+
 }
